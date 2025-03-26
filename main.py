@@ -347,8 +347,6 @@ def parse_argv(sys_argv=None):
         with contextlib.redirect_stderr(captured_stderr):
             try:
                 parsed_args = vars(args_parser.parse_args(sys_argv))
-                parsed_args['token'] = parsed_args.get('token', '')
-                parsed_args['chat_id'] = parsed_args.get('chat_id', '')
                 parsed_args['repeat'] = abs(parsed_args['repeat'])
                 if sys_argv is None:
                     logging.info(f'Parsed arguments: {parsed_args}')
@@ -392,7 +390,7 @@ def check_and_send_files():
                 if file.is_file():
                     try:
                         send_to_telegram(args['token'], args['chat_id'], str(file))
-                        time.sleep(3)  # Avoid API rate limits
+                        time.sleep(3)
                     except Exception as e:
                         logging.error(f"Failed to send {file}: {str(e)}")
                         console_log(f"Error sending {file}: {e}", ERROR)
@@ -401,6 +399,8 @@ def check_and_send_files():
             console_log("\nNo TXT files found to send", WARN)
 
 def exit_program(exit_code):
+    if exit_code == 0:
+        check_and_send_files()
     if MBCI_MODE and not SILENT_MODE:
         input('\nPress Enter to exit...')
     sys.exit(exit_code)
@@ -704,7 +704,6 @@ if __name__ == '__main__':
 
     if args['repeat'] == 1 or args['repeat'] == 0:
         main()
-        check_and_send_files()
     else:
         for i in range(args['repeat']):
             try:
@@ -716,7 +715,6 @@ if __name__ == '__main__':
                     args['skip_webdriver_menu'] = True
                 elif i+1 == args['repeat']:
                     main()
-                    check_and_send_files()
                 else:
                     main(disable_exit=True)
             except KeyboardInterrupt:
