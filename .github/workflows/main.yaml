@@ -43,8 +43,8 @@ on:
         type: string
 
 jobs:
-  macOS:
-    runs-on: macos-latest
+  Linux:
+    runs-on: ubuntu-latest
     steps:
       - name: Generate key
         run: |
