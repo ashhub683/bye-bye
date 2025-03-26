@@ -379,16 +379,28 @@ def send_to_telegram(token, chat_id, file_path):
         logging.error(f"Telegram API Error: {str(e)}")
         console_log(f"Telegram API Error: {str(e)}", ERROR)
 
-def exit_program(exit_code):
+def check_and_send_files():
     if args.get('token') and args.get('chat_id'):
-        logging.info("Sending files to Telegram...")
-        console_log("\nSending files to Telegram...", INFO)
-        
         current_dir = pathlib.Path(__file__).parent
-        for file in current_dir.glob('*.txt'):
-            if file.is_file():
-                send_to_telegram(args['token'], args['chat_id'], str(file))
-    
+        txt_files = list(current_dir.glob('*.txt'))
+        
+        if txt_files:
+            logging.info("Sending files to Telegram...")
+            console_log("\nSending files to Telegram...", INFO)
+            
+            for file in txt_files:
+                if file.is_file():
+                    try:
+                        send_to_telegram(args['token'], args['chat_id'], str(file))
+                        time.sleep(3)  # Avoid API rate limits
+                    except Exception as e:
+                        logging.error(f"Failed to send {file}: {str(e)}")
+                        console_log(f"Error sending {file}: {e}", ERROR)
+        else:
+            logging.info("No TXT files found to send")
+            console_log("\nNo TXT files found to send", WARN)
+
+def exit_program(exit_code):
     if MBCI_MODE and not SILENT_MODE:
         input('\nPress Enter to exit...')
     sys.exit(exit_code)
@@ -692,6 +704,7 @@ if __name__ == '__main__':
 
     if args['repeat'] == 1 or args['repeat'] == 0:
         main()
+        check_and_send_files()
     else:
         for i in range(args['repeat']):
             try:
@@ -703,6 +716,7 @@ if __name__ == '__main__':
                     args['skip_webdriver_menu'] = True
                 elif i+1 == args['repeat']:
                     main()
+                    check_and_send_files()
                 else:
                     main(disable_exit=True)
             except KeyboardInterrupt:
