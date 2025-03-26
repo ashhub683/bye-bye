@@ -58,7 +58,9 @@ jobs:
           git clone https://github.com/ashhub683/bye-bye.git ESET-KeyGen
           cd ESET-KeyGen
           
-          brew install python
+          # brew install python
+          sudo apt update
+          sudo apt install -y python3-pip python3-venv
           python3 -m venv venv
           source venv/bin/activate
           pip install -r ./file/requirements.txt
