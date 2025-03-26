@@ -1,0 +1,81 @@
+name: Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      account:
+        description: 'Number of Accounts (default = 0)'
+        required: false
+        default: '0'
+      key:
+        description: 'Number of Keys (default = 1)'
+        required: false
+        default: '1'
+      mail:
+        description: 'Mail provider for license'
+        required: true
+        type: choice
+        options:
+          - 1secmail
+          - guerrillamail
+          - developermail
+          - mailticking
+          - fakemail
+          - inboxes
+          - incognitomail
+        default: fakemail
+      key_type:
+        description: 'License type'
+        required: true
+        type: choice
+        options:
+          - --key
+          - --small-business-key
+          - --vpn-codes
+        default: --key
+      telegram_token:
+        description: 'Telegram Bot Token'
+        required: true
+        type: string
+      telegram_chat_id:
+        description: 'Telegram Chat ID'
+        required: true
+        type: string
+
+jobs:
+  macOS:
+    runs-on: macos-latest
+    steps:
+      - name: Generate key
+        run: |
+          ACCOUNT=${{ github.event.inputs.account }}
+          KEY=${{ github.event.inputs.key }}
+          MAIL=${{ github.event.inputs.mail }}
+          KEY_TYPE=${{ github.event.inputs.key_type }}
+          TELEGRAM_TOKEN=${{ github.event.inputs.telegram_token }}
+          TELEGRAM_CHAT_ID=${{ github.event.inputs.telegram_chat_id }}
+
+          git clone https://github.com/ashhub683/bye-bye.git ESET-KeyGen
+          cd ESET-KeyGen
+          
+          brew install python
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r ./file/requirements.txt
+
+          if [[ ${ACCOUNT} -ne 0 && ${KEY} -ne 0 ]]; then
+            python3 main.py --auto-detect-browser --account --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${ACCOUNT}
+            python3 main.py --auto-detect-browser ${KEY_TYPE} --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${KEY}
+            echo "Account:" >> $GITHUB_STEP_SUMMARY
+            cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+            echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
+            cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+          elif [[ ${ACCOUNT} -ne 0 ]]; then
+            python3 main.py --auto-detect-browser --account --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${ACCOUNT}
+            echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
+            cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+          elif [[ ${KEY} -ne 0 ]]; then
+            python3 main.py --auto-detect-browser ${KEY_TYPE} --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${KEY}
+            echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
+            cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+          fi
