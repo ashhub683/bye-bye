@@ -54,30 +54,42 @@ jobs:
           KEY_TYPE=${{ github.event.inputs.key_type }}
           TELEGRAM_TOKEN=${{ github.event.inputs.telegram_token }}
           TELEGRAM_CHAT_ID=${{ github.event.inputs.telegram_chat_id }}
-
           git clone https://github.com/ashhub683/bye-bye.git ESET-KeyGen
           cd ESET-KeyGen
-          
-          # brew install python
           sudo apt update
           sudo apt install -y python3-pip python3-venv
           python3 -m venv venv
           source venv/bin/activate
           pip install -r ./file/requirements.txt
-
           if [[ ${ACCOUNT} -ne 0 && ${KEY} -ne 0 ]]; then
             python3 main.py --auto-detect-browser --account --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${ACCOUNT}
             python3 main.py --auto-detect-browser ${KEY_TYPE} --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${KEY}
-            echo "Account:" >> $GITHUB_STEP_SUMMARY
-            cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
-            echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
-            cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+            if ls ./*ACCOUNTS.txt 1> /dev/null 2>&1; then
+              echo "Account:" >> $GITHUB_STEP_SUMMARY
+              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Accounts file not found" >> $GITHUB_STEP_SUMMARY
+            fi
+            if ls ./*KEYS.txt 1> /dev/null 2>&1; then
+              echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
+              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Keys file not found" >> $GITHUB_STEP_SUMMARY
+            fi
           elif [[ ${ACCOUNT} -ne 0 ]]; then
             python3 main.py --auto-detect-browser --account --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${ACCOUNT}
-            echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
-            cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+            if ls ./*ACCOUNTS.txt 1> /dev/null 2>&1; then
+              echo -e "\nAccount:" >> $GITHUB_STEP_SUMMARY
+              cat ./*ACCOUNTS.txt >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Accounts file not found" >> $GITHUB_STEP_SUMMARY
+            fi
           elif [[ ${KEY} -ne 0 ]]; then
             python3 main.py --auto-detect-browser ${KEY_TYPE} --email-api ${MAIL} --skip-update-check --no-logo --disable-progress-bar --disable-logging --token ${TELEGRAM_TOKEN} --chat_id ${TELEGRAM_CHAT_ID} --repeat ${KEY}
-            echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
-            cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+            if ls ./*KEYS.txt 1> /dev/null 2>&1; then
+              echo -e "\nKey:" >> $GITHUB_STEP_SUMMARY
+              cat ./*KEYS.txt >> $GITHUB_STEP_SUMMARY
+            else
+              echo "Keys file not found" >> $GITHUB_STEP_SUMMARY
+            fi
           fi
