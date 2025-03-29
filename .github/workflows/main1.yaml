@@ -48,12 +48,12 @@ jobs:
     steps:
       - name: Generate key
         run: |
-          ACCOUNT=${{ github.event.inputs.account }}
-          KEY=${{ github.event.inputs.key }}
-          MAIL=${{ github.event.inputs.mail }}
-          KEY_TYPE=${{ github.event.inputs.key_type }}
-          TELEGRAM_TOKEN=${{ github.event.inputs.telegram_token }}
-          TELEGRAM_CHAT_ID=${{ github.event.inputs.telegram_chat_id }}
+          $ACCOUNT=${{ github.event.inputs.account }}
+          $KEY=${{ github.event.inputs.key }}
+          $MAIL=${{ github.event.inputs.mail }}
+          $KEY_TYPE=${{ github.event.inputs.key_type }}
+          $TELEGRAM_TOKEN=${{ github.event.inputs.telegram_token }}
+          $TELEGRAM_CHAT_ID=${{ github.event.inputs.telegram_chat_id }}
 
           git clone https://github.com/ashhub683/bye-bye.git ESET-KeyGen
           cd ESET-KeyGen
