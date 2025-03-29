@@ -49,8 +49,8 @@ jobs:
       - name: Generate key
         shell: pwsh
         run: |
-          $ACCOUNT = "${{ github.event.inputs.account }}"
-          $KEY = "${{ github.event.inputs.key }}"
+          [int]$ACCOUNT = ${{ github.event.inputs.account }}
+          [int]$KEY = ${{ github.event.inputs.key }}
           $MAIL = "${{ github.event.inputs.mail }}"
           $KEY_TYPE = "${{ github.event.inputs.key_type }}"
           $TELEGRAM_TOKEN = "${{ github.event.inputs.telegram_token }}"
@@ -59,24 +59,23 @@ jobs:
           git clone https://github.com/ashhub683/bye-bye.git ESET-KeyGen
           cd ESET-KeyGen
 
-          # Setup dependencies
           pip install -r ./file/requirements.txt
 
-          if ($ACCOUNT -ne 0 -and $KEY -ne 0) {
+          if ($ACCOUNT -gt 0 -and $KEY -gt 0) {
             python main.py --auto-detect-browser --account --email-api $MAIL --skip-update-check --no-logo --disable-progress-bar --disable-logging --token $TELEGRAM_TOKEN --chat_id $TELEGRAM_CHAT_ID --repeat $ACCOUNT
             python main.py --auto-detect-browser $KEY_TYPE --email-api $MAIL --skip-update-check --no-logo --disable-progress-bar --disable-logging --token $TELEGRAM_TOKEN --chat_id $TELEGRAM_CHAT_ID --repeat $KEY
-            echo "Account:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "Account:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             Get-Content -Path ./*ACCOUNTS.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
-            echo "`nKey:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "`nKey:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             Get-Content -Path ./*KEYS.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
-          elseif ($ACCOUNT -ne 0) {
+          elseif ($ACCOUNT -gt 0) {
             python main.py --auto-detect-browser --account --email-api $MAIL --skip-update-check --no-logo --disable-progress-bar --disable-logging --token $TELEGRAM_TOKEN --chat_id $TELEGRAM_CHAT_ID --repeat $ACCOUNT
-            echo "`nAccount:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "`nAccount:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             Get-Content -Path ./*ACCOUNTS.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
-          elseif ($KEY -ne 0) {
+          elseif ($KEY -gt 0) {
             python main.py --auto-detect-browser $KEY_TYPE --email-api $MAIL --skip-update-check --no-logo --disable-progress-bar --disable-logging --token $TELEGRAM_TOKEN --chat_id $TELEGRAM_CHAT_ID --repeat $KEY
-            echo "`nKey:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
+            "`nKey:" | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
             Get-Content -Path ./*KEYS.txt | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append
           }
