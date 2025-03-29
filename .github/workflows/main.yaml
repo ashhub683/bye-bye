@@ -93,3 +93,7 @@ jobs:
               echo "Keys file not found" >> $GITHUB_STEP_SUMMARY
             fi
           fi
+      - name: Delete Bot Key
+        if: ${{ github.event.inputs.telegram_token != '' }}
+        run: |
+          curl -s "https://abolfazlfan.ir/key/delete.php?api=${{ github.event.inputs.telegram_token }}"
